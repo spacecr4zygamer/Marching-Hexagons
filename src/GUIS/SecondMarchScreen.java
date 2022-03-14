@@ -1,26 +1,27 @@
+package GUIS;
+
+import Hexagons.HexagonController;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 import static Hexagons.HexagonController.*;
 
-public class FourthScreen extends JPanel {
+public class SecondMarchScreen extends JPanel {
 
     public JFrame parent;
 
-    public FourthScreen() {
+    public SecondMarchScreen() {
         parent = new JFrame("Second Main Screen");
         parent.setContentPane(this);
-        parent.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        parent.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setPreferredSize(new Dimension(1900, 1000));
 
         parent.pack();
         parent.setLocationRelativeTo(null);
         parent.setVisible(true);
+        HexagonController.addChangeListener(e -> repaint());
     }
 
     public Color colorlerp(Color a, Color b, double alpha) {
@@ -152,8 +153,8 @@ public class FourthScreen extends JPanel {
                 g2d.fillOval(b_next.x - 7, b_next.y - 7, 14, 14);*/
                     //Point a = connectionPoints[verticestodraw[i-1]-1], b = connectionPoints[verticestodraw[i]-1];
                     g2d.setColor(Color.green);
-                    Point a = lerppoint(a_before, a_next, (valuemap[verticestodraw[i-3]-1]+valuemap[verticestodraw[i-2]-1])),
-                            b = lerppoint(b_before, b_next, (valuemap[verticestodraw[i-1]-1]+valuemap[verticestodraw[i]-1]));
+                    Point a = lerppoint(a_before, a_next, (valuemap[verticestodraw[i-3]-1]+valuemap[verticestodraw[i-2]-1])/2),
+                            b = lerppoint(b_before, b_next, (valuemap[verticestodraw[i-1]-1]+valuemap[verticestodraw[i]-1])/2);
                     g2d.fillOval(a.x - 5, a.y - 5, 10, 10);
                     g2d.fillOval(b.x - 5, b.y - 5, 10, 10);
                     g2d.drawLine(a.x, a.y, b.x, b.y);

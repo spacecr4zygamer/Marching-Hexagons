@@ -1,5 +1,11 @@
 import Hexagons.HexagonController;
-import org.w3c.dom.css.CSSFontFaceRule;
+import GUIS.SecondMarchScreen;
+import GUIS.FirstMarchScreen;
+import GUIS.FirstCases;
+import GUIS.SecondCases;
+
+import javax.swing.*;
+import java.awt.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -18,9 +24,32 @@ public class Main {
 //        System.out.println(Arrays.stream(e).min().getAsDouble());
 //        System.out.println(Arrays.stream(e).average().getAsDouble());
 
-        new SecondScreen();
-        new Screen();
-        new ThirdScreen();
-        new FourthScreen();
+        JFrame jFrame = new JFrame("Launch Panel");
+        jFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        jFrame.setLayout(new GridLayout(0,1));
+        jFrame.add(new JButton("New Noise Generation"){{
+            setPreferredSize(new Dimension(200,50));
+            addActionListener(e -> {
+                HexagonController.generatenoise();
+            });
+        }});
+        jFrame.add(new JButton("Show First Set"){{
+            setPreferredSize(new Dimension(200,100));
+            addActionListener(e -> {
+                new FirstCases();
+                new FirstMarchScreen();
+            });
+        }});
+        jFrame.add(new JButton("Show Second Set"){{
+            setPreferredSize(new Dimension(200,100));
+            addActionListener(e -> {
+                new SecondCases();
+                new SecondMarchScreen();
+            });
+        }});
+
+        jFrame.pack();
+        jFrame.setLocationRelativeTo(null);
+        jFrame.setVisible(true);
     }
 }

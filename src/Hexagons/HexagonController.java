@@ -1,6 +1,13 @@
 package Hexagons;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.net.http.WebSocket;
+import java.util.ArrayList;
+import java.util.EventListener;
 
 public class HexagonController {
 
@@ -205,7 +212,27 @@ public class HexagonController {
         return new Polygon(newxpoints, newypoints, 6);
     }
 
-    public static double[][] valarr = new double[2000][2000];
+    public static double[][] valarr = new double[1000][1000];
+    private static ArrayList<ChangeListener> changeListeners = new ArrayList<>();
+
+    public static void addChangeListener(ChangeListener changeListener) {
+        changeListeners.add(changeListener);
+    }
+
+    public static void generatenoise() {
+        for (ChangeListener changeListener : changeListeners) {
+            changeListener.stateChanged(new ChangeEvent("NoiseTable"));
+        }
+        double seed = Math.random();
+        System.out.println(seed);
+        for (int x = 0; x < 1000; x++) {
+            for (int y = 0; y < 1000; y++) {
+                //valarr[x][y] = Math.random();
+                valarr[x][y] = Math.abs(noise.noise(x/6d,y/6d,seed));
+                //valarr[x][y] = (int) Math.round(Math.abs(noise.noise(0.15489926789618,x/10,y/10)));
+            }
+        }
+    }
 
     public static void initialize() {
         /*for (int[] ints : data) {
@@ -215,11 +242,6 @@ public class HexagonController {
                 }
             }
         }*/
-        for (int x = 0; x < 2000; x++) {
-            for (int y = 0; y < 2000; y++) {
-                valarr[x][y] = Math.random();
-                //valarr[x][y] = (int) Math.round(Math.abs(noise.noise(0.15489926789618,x/10,y/10)));
-            }
-        }
+        generatenoise();
     }
 }

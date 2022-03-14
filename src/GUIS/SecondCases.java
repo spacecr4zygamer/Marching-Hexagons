@@ -1,22 +1,20 @@
+package GUIS;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 import static Hexagons.HexagonController.*;
 
-public class ThirdScreen extends JPanel {
+public class SecondCases extends JPanel {
 
 
     public JFrame parent;
 
-    public ThirdScreen() {
+    public SecondCases() {
         parent = new JFrame("Second Cases Screen");
         parent.setContentPane(this);
-        parent.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        parent.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setPreferredSize(new Dimension(1900, 1000));
 
         parent.pack();

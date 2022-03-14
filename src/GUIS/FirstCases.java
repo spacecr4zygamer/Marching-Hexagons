@@ -1,20 +1,21 @@
+package GUIS;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+
 import static Hexagons.HexagonController.*;
 
-public class Screen extends JPanel {
+public class FirstCases extends JPanel {
+
+
 
     public JFrame parent;
 
-    public Screen() {
-        parent = new JFrame("Main Screen");
+    public FirstCases() {
+        parent = new JFrame("First Cases Screen");
         parent.setContentPane(this);
-        parent.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        parent.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setPreferredSize(new Dimension(1900, 1000));
 
         parent.pack();
@@ -32,8 +33,6 @@ public class Screen extends JPanel {
         return new Point((int) (a.x+(b.x-a.x)*alpha),(int) (a.y+(b.y-a.y)*alpha));
     }
 
-    private Color[] colorarr = {Color.YELLOW,Color.RED,Color.green,Color.cyan,Color.gray,Color.WHITE,Color.pink,Color.orange,Color.MAGENTA};
-
     @Override
     public void paint(Graphics g) {
 
@@ -43,7 +42,7 @@ public class Screen extends JPanel {
         g2d.fillRect(0, 0, getWidth(), getHeight());
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setTransform(new AffineTransform() {{
-            setToScale(.5, .5);
+            setToScale(0.9, 0.9);
             //setToTranslation(getWidth() / 2, getHeight() / 2);
         }});
         g2d.setColor(Color.blue);
@@ -68,113 +67,81 @@ public class Screen extends JPanel {
                 g2d.drawString(x + "/" + y, point1.x - 10, point1.y + 5);
             }
         }*/
-
-        /*int[][] valarr = new int[200][200];
-        for (int x = 0; x < 200; x++) {
-            for (int y = 0; y < 200; y++) {
-                valarr[x][y] = (int) Math.round(Math.random());
-            }
-        }*/
-
-        g2d.setColor(Color.green);
-        g2d.setStroke(new BasicStroke(3));
-        for (int x = 0; x < 100; x++) {
-            for (int y = 0; y < 200; y+=2) {
-
-                int phase = x % 2;
-                //int y = 0;
-                int sy = y + phase;
-
-
-
-                Point upleft = convertVerticeToHexagonGrid(x, sy);
-                Point upright = convertVerticeToHexagonGrid(x + 1, sy);
-                Point left = convertVerticeToHexagonGrid(x, sy + 1);
-                Point right = convertVerticeToHexagonGrid(x + 1, sy + 1);
-                Point downleft = convertVerticeToHexagonGrid(x, sy + 2);
-                Point downright = convertVerticeToHexagonGrid(x + 1, sy + 2);
-
-                g2d.setColor(Color.green);
-                Point middle = lerppoint(left,right,0.5);
-                g2d.fillOval(middle.x-5,middle.y-5,10,10);
-
-                Point[] verts = {
-                        upleft,
-                        lerppoint(upleft, upright, 0.5),
-                        upright,
-                        lerppoint(upright, right, 0.5),
-                        right,
-                        lerppoint(right, downright, 0.5),
-                        downright,
-                        lerppoint(downright, downleft, 0.5),
-                        downleft,
-                        lerppoint(downleft, left, 0.5),
-                        left,
-                        lerppoint(left, upleft, 0.5)
-                };
-
-                /*int c = 0;
-                for (Point connectionPoint : verts) {
-                    //g2d.fillOval(connectionPoint.x-3,connectionPoint.y-3,6,6);
-                    g2d.drawString(""+c,connectionPoint.x,connectionPoint.y);
-                    c++;
-                }*/
-
-                int[] verticestodraw = data[getIndexNumber(
-                        (int) Math.round(valarr[x][sy]),
-                        (int) Math.round(valarr[x + 1][sy]),
-                        (int) Math.round(valarr[x+1][sy + 1]),
-                        (int) Math.round(valarr[x + 1][sy + 2]),
-                        (int) Math.round(valarr[x][sy + 2]),
-                        (int) Math.round(valarr[x][sy + 1])
-                )];
-
-                for (int i = 1; i <= verticestodraw.length; i+=2) {
-                    //System.out.println(i);
-//                    int aindex = verticestodraw[i-1]-1;
-//                    Point abefore = verts[aindex-1];
-//                    Point anext = verts[aindex+1];
 //
-//                    int bindex = verticestodraw[i]-1;
-//                    Point bbefore = verts[bindex-1];
-//                    Point bnext = verts[bindex+1];
-
-                    Point a = verts[verticestodraw[i-1]-1], b = verts[verticestodraw[i]-1];
-                    //Point a = lerppoint(abefore,anext,0.4);
-                    //Point b = lerppoint(bbefore,bnext,0.4);
-                    g2d.setColor(Color.CYAN);
-                    g2d.fillOval(a.x-3,a.y-3,6,6);
-                    g2d.fillOval(b.x-3,b.y-3,6,6);
-                    //g2d.setColor(colorarr[(int) Math.round(Math.random()*(colorarr.length-1))]);
-                    g2d.setColor(Color.green);
-                    g2d.drawLine(a.x,a.y,b.x,b.y);
-                }
-                upleft = lerppoint(upleft,middle,0.1);
-                upright = lerppoint(upright,middle,0.1);
-                left = lerppoint(left,middle,0.1);
-                right = lerppoint(right,middle,0.1);
-                downleft = lerppoint(downleft,middle,0.1);
-                downright = lerppoint(downright,middle,0.1);
-                //g2d.setColor(colorlerp(Color.MAGENTA, Color.WHITE, valarr[x][sy]));
-                g2d.setColor(valarr[x][sy]>=0.5?Color.WHITE:Color.MAGENTA);
-                g2d.fillOval(upleft.x - 2, upleft.y - 2, 4, 4);
-//                g2d.setColor(colorlerp(Color.MAGENTA, Color.WHITE, valarr[x + 1][sy]));
-                g2d.setColor(valarr[x+1][sy]>=0.5?Color.WHITE:Color.MAGENTA);
-                g2d.fillOval(upright.x - 2, upright.y - 2, 4, 4);
-//                g2d.setColor(colorlerp(Color.MAGENTA, Color.WHITE, valarr[x][sy + 1]));
-                g2d.setColor(valarr[x][sy+1]>=0.5?Color.WHITE:Color.MAGENTA);
-                g2d.fillOval(left.x - 2, left.y - 2, 4, 4);
-//                g2d.setColor(colorlerp(Color.MAGENTA, Color.WHITE, valarr[x + 1][sy + 1]));
-                g2d.setColor(valarr[x+1][sy+1]>=0.5?Color.WHITE:Color.MAGENTA);
-                g2d.fillOval(right.x - 2, right.y - 2, 4, 4);
-//                g2d.setColor(colorlerp(Color.MAGENTA, Color.WHITE, valarr[x][sy + 2]));
-                g2d.setColor(valarr[x][sy+2]>=0.5?Color.WHITE:Color.MAGENTA);
-                g2d.fillOval(downleft.x - 2, downleft.y - 2, 4, 4);
-//                g2d.setColor(colorlerp(Color.MAGENTA, Color.WHITE, valarr[x + 1][sy + 2]));
-                g2d.setColor(valarr[x+1][sy+2]>=0.5?Color.WHITE:Color.MAGENTA);
-                g2d.fillOval(downright.x - 2, downright.y - 2, 4, 4);
-            }
-        }
+//        g2d.setColor(Color.green);
+//        for (int x = 0; x < 30; x++) {
+//            for (int y = 0; y < 60; y+=2) {
+//
+//                int phase = x % 2;
+//                //int y = 0;
+//                int sy = y + phase;
+//
+//
+//
+//                Point upleft = convertVerticeToHexagonGrid(x, sy);
+//                Point upright = convertVerticeToHexagonGrid(x + 1, sy);
+//                Point left = convertVerticeToHexagonGrid(x, sy + 1);
+//                Point right = convertVerticeToHexagonGrid(x + 1, sy + 1);
+//                Point downleft = convertVerticeToHexagonGrid(x, sy + 2);
+//                Point downright = convertVerticeToHexagonGrid(x + 1, sy + 2);
+//
+//                g2d.setColor(Color.green);
+//                Point middle = lerppoint(left,right,0.5);
+//                g2d.fillOval(middle.x-5,middle.y-5,10,10);
+//
+//                Point[] verts = {
+//                        upleft,
+//                        lerppoint(upleft, upright, 0.5),
+//                        upright,
+//                        lerppoint(upright, right, 0.5),
+//                        right,
+//                        lerppoint(right, downright, 0.5),
+//                        downright,
+//                        lerppoint(downright, downleft, 0.5),
+//                        downleft,
+//                        lerppoint(downleft, left, 0.5),
+//                        left,
+//                        lerppoint(left, upleft, 0.5)
+//                };
+//                upleft = lerppoint(upleft,middle,0.1);
+//                upright = lerppoint(upright,middle,0.1);
+//                left = lerppoint(left,middle,0.1);
+//                right = lerppoint(right,middle,0.1);
+//                downleft = lerppoint(downleft,middle,0.1);
+//                downright = lerppoint(downright,middle,0.1);
+//
+//                int[] verticestodraw = data[getIndexNumber(valarr[x][sy],valarr[x + 1][sy],valarr[x+1][sy + 1],valarr[x + 1][sy + 2],valarr[x][sy + 2],valarr[x][sy + 1])];
+//
+//                for (int i = 1; i <= verticestodraw.length; i+=2) {
+//                    //System.out.println(i);
+//                    Point a = verts[verticestodraw[i-1]-1], b = verts[verticestodraw[i]-1];
+//                    g2d.setColor(Color.CYAN);
+//                    g2d.fillOval(a.x-3,a.y-3,6,6);
+//                    g2d.fillOval(b.x-3,b.y-3,6,6);
+//                    g2d.setColor(Color.yellow);
+//                    g2d.drawLine(a.x,a.y,b.x,b.y);
+//                }
+//
+//                //g2d.setColor(colorlerp(Color.MAGENTA, Color.WHITE, valarr[x][sy]));
+//                g2d.setColor(valarr[x][sy]==1?Color.WHITE:Color.MAGENTA);
+//                g2d.fillOval(upleft.x - 2, upleft.y - 2, 4, 4);
+////                g2d.setColor(colorlerp(Color.MAGENTA, Color.WHITE, valarr[x + 1][sy]));
+//                g2d.setColor(valarr[x+1][sy]==1?Color.WHITE:Color.MAGENTA);
+//                g2d.fillOval(upright.x - 2, upright.y - 2, 4, 4);
+////                g2d.setColor(colorlerp(Color.MAGENTA, Color.WHITE, valarr[x][sy + 1]));
+//                g2d.setColor(valarr[x][sy+1]==1?Color.WHITE:Color.MAGENTA);
+//                g2d.fillOval(left.x - 2, left.y - 2, 4, 4);
+////                g2d.setColor(colorlerp(Color.MAGENTA, Color.WHITE, valarr[x + 1][sy + 1]));
+//                g2d.setColor(valarr[x+1][sy+1]==1?Color.WHITE:Color.MAGENTA);
+//                g2d.fillOval(right.x - 2, right.y - 2, 4, 4);
+////                g2d.setColor(colorlerp(Color.MAGENTA, Color.WHITE, valarr[x][sy + 2]));
+//                g2d.setColor(valarr[x][sy+2]==1?Color.WHITE:Color.MAGENTA);
+//                g2d.fillOval(downleft.x - 2, downleft.y - 2, 4, 4);
+////                g2d.setColor(colorlerp(Color.MAGENTA, Color.WHITE, valarr[x + 1][sy + 2]));
+//                g2d.setColor(valarr[x+1][sy+2]==1?Color.WHITE:Color.MAGENTA);
+//                g2d.fillOval(downright.x - 2, downright.y - 2, 4, 4);
+//            }
+//        }
         /*for (int x = 0; x < 25; x++) {
             for (int y = 0; y < 13; y++) {
                 Point point1 = converttoHexagongrid(x, y);
@@ -216,12 +183,6 @@ public class Screen extends JPanel {
 //        }
 
 
-        /*
-        Graphics2D g2d = (Graphics2D) g;
-        g2d.setColor(Color.BLACK);
-        g2d.fillRect(0, 0, getWidth(), getHeight());
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
-        g2d.setTransform(AffineTransform.getScaleInstance(0.75,0.75));
 
         g2d.setColor(Color.RED);
         for (int x = 0; x < 25; x++) {
@@ -234,8 +195,7 @@ public class Screen extends JPanel {
             }
         }
 
-        g2d.setStroke(new BasicStroke(2));
-        int xoff = 0,yoff = 0;
+        //g2d.setStroke(new BasicStroke(2));
         for (int casenumber = 0; casenumber < data.length; casenumber++) {
 
             g2d.setColor(Color.BLUE);
@@ -294,6 +254,7 @@ public class Screen extends JPanel {
 //            g.drawPolygon(getTransformedHexagon(point1.x,point1.y));}
 //        {Point point1 = converttoHexagongrid(3,1);
 //            g.drawPolygon(getTransformedHexagon(point1.x,point1.y));}
-        */
+
     }
 }
+
