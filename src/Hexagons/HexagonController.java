@@ -87,6 +87,11 @@ public class HexagonController {
             {}, // 63
     };
 
+    /**
+     * This Data structure is only made for the Lines connecting and is always acting in Pairs of 4
+     * The first and second are to Lerp the Position of A and the third and Fourth are to Lerp the Position of B
+     * Between A and B you can draw a Line then.
+     */
     public static int[][] data2 = {
             {}, // 0
             {1,2,1,6}, // 1
@@ -154,12 +159,25 @@ public class HexagonController {
             {}, // 63
     };
 
+    /**
+     * The Legacy method of calculating the Middle points for Hexagons
+     * @param x The X Position
+     * @param y The Y Position
+     * @return Returns the Middle Point
+     */
     public static Point converttoHexagongrid(int x, int y) {
         int sx = (int) (x * hexagonsidelength * 1.5) - 25;
         int sy = (y * 86) + ((x - 1) % 2 == 0 ? 43 : 0);
         return new Point(sx, sy);
     }
 
+    /**
+     * Converts Vertices along the counterpoints of a Hexagon
+     * This method skips gaps instead of changing the Y Level
+     * @param x The X to be Transformed
+     * @param y The Y to be Transformed
+     * @return Returns the new Transformed Point
+     */
     public static Point convertVerticeToHexagonGrid(int x, int y) {
         //int sx = (int) (x*100-(x%4==0?25:0));
         //int sy = (int) (y*86+43+((x-1)%4>=2?43:0));
@@ -176,9 +194,16 @@ public class HexagonController {
 
     private static final Polygon hexagon = new Polygon(new int[]{25, 75, 100, 75, 25, 0}, new int[]{0, 0, 43, 86, 86, 43}, 6);
 
+
+
     private static final int[] xconnectionpoints = {25, 50, 75, 87, 100, 87, 75, 50, 25, 12, 0, 12};
     private static final int[] yconnectionpoints = {0, 0, 0, 21, 43, 64, 86, 86, 86, 64, 43, 21};
 
+    /**
+     * Warning this is not Accurate due to only using ints for Positions
+     * @param position Middle Position of the Hexagon
+     * @return Returns all 12 Points (Corners and Edges)
+     */
     public static Point[] getConnectionPoints(Point position) {
         Point[] vertices = new Point[12];
         for (int i = 0; i < 12; i++) {
@@ -187,6 +212,11 @@ public class HexagonController {
         return vertices;
     }
 
+    /**
+     *
+     * @param position Middle Position of the Hexagon
+     * @return Returns the 6 Corner Points
+     */
     public static Point[] getVerticePositions(Point position) {
         Point[] vertices = new Point[6];
         for (int i = 0; i < 6; i++) {
@@ -195,13 +225,28 @@ public class HexagonController {
         return vertices;
     }
 
-    // The Points Names are according to the direction of how I setup the Polygon
-    // aka top left going clockwise
+    /**
+     * The Points Names are according to the direction of how I setup the Polygon
+     * aka top left going clockwise
+     * @param a Top Left
+     * @param b Top Right
+     * @param c Right
+     * @param d Down Right
+     * @param e Down Left
+     * @param f Left
+     * @return The Case Number
+     */
     public static int getIndexNumber(int a, int b, int c, int d, int e, int f) {
         return (a) + (b << 1) + (c << 2) + (d << 3) + (e << 4) + (f << 5);
     }
 
 
+    /**
+     * It transforms a preset Polygon to the wishes coordinates where x and y are the Middle of it
+     * @param x The x Coordinate
+     * @param y The y Coordinate
+     * @return Returns the transformed Polygon
+     */
     public static Polygon getTransformedHexagon(int x, int y) {
         int[] newxpoints = new int[6];
         int[] newypoints = new int[6];
@@ -212,13 +257,21 @@ public class HexagonController {
         return new Polygon(newxpoints, newypoints, 6);
     }
 
-    public static double[][] valarr = new double[1000][1000];
     private static ArrayList<ChangeListener> changeListeners = new ArrayList<>();
 
+    /**
+     * Adds a Change Listener for the regeneration of noise
+     * @param changeListener The Listener
+     */
     public static void addChangeListener(ChangeListener changeListener) {
         changeListeners.add(changeListener);
     }
 
+    public static double[][] valarr = new double[1000][1000];
+
+    /**
+     * Generates a new set of noise and stores it
+     */
     public static void generatenoise() {
         for (ChangeListener changeListener : changeListeners) {
             changeListener.stateChanged(new ChangeEvent("NoiseTable"));
@@ -234,14 +287,10 @@ public class HexagonController {
         }
     }
 
+    /**
+     * Initializes the HexagonController, actually just calls generatenoise but yea..
+     */
     public static void initialize() {
-        /*for (int[] ints : data) {
-            for (int anInt : ints) {
-                if (anInt%2==1){
-                    System.out.println("IT HIT A CORNER NOOOOOOOOO");
-                }
-            }
-        }*/
         generatenoise();
     }
 }
