@@ -1,8 +1,5 @@
+import GUIS.*;
 import Hexagons.HexagonController;
-import GUIS.SecondMarchScreen;
-import GUIS.FirstMarchScreen;
-import GUIS.FirstCases;
-import GUIS.SecondCases;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,9 +26,11 @@ public class Main {
         jFrame.setLayout(new GridLayout(0,1));
         jFrame.add(new JButton("New Noise Generation"){{
             setPreferredSize(new Dimension(200,50));
-            addActionListener(e -> {
-                HexagonController.generatenoise();
-            });
+            addActionListener(e -> HexagonController.generatenoise());
+        }});
+        jFrame.add(new JButton("Connection Generator"){{
+            setPreferredSize(new Dimension(200,50));
+            addActionListener(e -> new GeneratorGUI());
         }});
         jFrame.add(new JButton("Show First Set"){{
             setPreferredSize(new Dimension(200,100));
