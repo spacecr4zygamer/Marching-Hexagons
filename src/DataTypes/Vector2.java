@@ -1,5 +1,7 @@
 package DataTypes;
 
+import java.awt.*;
+
 public class Vector2 {
     public double x = 0, y = 0;
 
@@ -33,9 +35,13 @@ public class Vector2 {
         this.y = y;
     }
 
-    public Vector2(String string) {
+    /*public Vector2(String string) {
         Vector2 r = new Vector2(string);
         this.set(r.x, r.y);
+    }*/
+
+    public Vector2(Point position) {
+        this.set(position.getX(),position.getY());
     }
 
     public double dot(Vector2 other) {
@@ -50,8 +56,16 @@ public class Vector2 {
         return new Vector2(this.x + b.x, this.y + b.y);
     }
 
+    public Vector2 add(double xoff, double yoff) {
+        return new Vector2(this.x+xoff,this.y+yoff);
+    }
+
     public Vector2 sub(Vector2 b) {
         return new Vector2(this.x - b.x, this.y - b.y);
+    }
+
+    public Vector2 sub(double xoff, double yoff) {
+        return new Vector2(this.x-xoff,this.y-yoff);
     }
 
     public Vector2 mul(Vector2 b) {
@@ -105,14 +119,8 @@ public class Vector2 {
     }
 
     public static Vector2 fromString(String string) {
-        String[] ree = string.split(",");
-        String x = ree[0];
-        String y = ree[1];
-        //System.out.println(x+"|"+y);
-        Vector2 r = new Vector2(Double.parseDouble(x), Double.parseDouble(y));
-        //this.set(new Double(x),new Double(y));
-        //System.out.println(r.tostring());
-        return r;
+        String[] strings = string.split(",");
+        return new Vector2(Double.parseDouble(strings[0]), Double.parseDouble(strings[1]));
     }
 
 }
