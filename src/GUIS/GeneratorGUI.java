@@ -3,14 +3,17 @@ package GUIS;
 import DataTypes.Vector2;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.FileChooserUI;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.security.interfaces.EdECKey;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.InvalidPropertiesFormatException;
 
 public class GeneratorGUI extends JPanel {
 
@@ -22,7 +25,7 @@ public class GeneratorGUI extends JPanel {
     private int CaseNumber = 0;
     private int connectionmode = 1;
 
-    private JRadioButton LinesB,TrisB;
+    private JRadioButton LinesB, TrisB;
 
     public GeneratorGUI() {
         parent = new JFrame("Connection Array");
@@ -76,17 +79,17 @@ public class GeneratorGUI extends JPanel {
                 GeneratorGUI.this.repaint();
             });
         }});
-        explorer.add(LinesB = new JRadioButton("Lines",true){{
+        explorer.add(LinesB = new JRadioButton("Lines", true) {{
             addActionListener(e -> {
                 TrisB.setSelected(!TrisB.isSelected());
-                connectionmode = TrisB.isSelected()?2:1;
+                connectionmode = TrisB.isSelected() ? 2 : 1;
                 GeneratorGUI.this.repaint();
             });
         }});
-        explorer.add(TrisB = new JRadioButton("Triangles",false){{
+        explorer.add(TrisB = new JRadioButton("Triangles", false) {{
             addActionListener(e -> {
                 LinesB.setSelected(!LinesB.isSelected());
-                connectionmode = LinesB.isSelected()?1:2;
+                connectionmode = LinesB.isSelected() ? 1 : 2;
                 GeneratorGUI.this.repaint();
             });
         }});
@@ -165,14 +168,109 @@ public class GeneratorGUI extends JPanel {
         CaseDisplay.setText("The Current Case: " + CaseArray[CaseNumber].toString());
     }
 
-    private void savefile() throws IOException {
+    private byte[] turntoBytes(Integer num, int bytesc) {
+        byte[] bytes = new byte[bytesc];
+        for (int i = 0; i < bytesc; i++) {
+            Integer portionnumber = num & (0b1111_1111 << (i * 8));
+            bytes[i] = portionnumber.byteValue();
+        }
+        return bytes;
+    }
+
+    private void savefile() throws IOException, NullPointerException {
         JFileChooser jFileChooser = new JFileChooser();
-        jFileChooser.setVisible(true);
-        System.out.println(jFileChooser.getSelectedFile());
+        jFileChooser.setFileFilter(new FileFilter() {
+            @Override
+            public boolean accept(File f) {
+                if (f.getName().contains(".mca")) {
+                    return true;
+                }
+                return !f.isFile();
+            }
+
+            @Override
+            public String getDescription() {
+                return ".mca";
+            }
+        });
+        jFileChooser.showDialog(null, "Save to");
+        File selectedFile = jFileChooser.getSelectedFile();
+        if (selectedFile == null) {
+            throw new FileNotFoundException("This File does not Exist");
+        }
+        String absolutepath = selectedFile.getAbsolutePath();
+        if (!absolutepath.contains(".")) {
+            //System.out.println("adding onto");
+            absolutepath = absolutepath.concat(".mca");
+        }
+        System.out.println(absolutepath);
+        FileOutputStream fileOutputStream = new FileOutputStream(absolutepath);
+        fileOutputStream.write(109);
+        fileOutputStream.write(99);
+        fileOutputStream.write(97);
+        fileOutputStream.write(turntoBytes(EdgeNumber, 2));
+        fileOutputStream.write(turntoBytes(BetweenNumber, 2));
+        for (ArrayList<Integer> integers : CaseArray) {
+            fileOutputStream.write(turntoBytes(integers.size(), 1));
+            for (Integer integer : integers) {
+                fileOutputStream.write(turntoBytes(integer, 2));
+            }
+        }
+        fileOutputStream.close();
+    }
+
+    private int bitearr_to_int(byte[] arr) {
+        int accumulated = 0;
+        for (int i = arr.length-1; i >= 0; i--) {
+            accumulated |= (arr[i] & 0xff) << 8*i;
+        }
+        return accumulated;
     }
 
     private void loadfile() throws IOException {
+        JFileChooser jFileChooser = new JFileChooser();
+        jFileChooser.setFileFilter(new FileFilter() {
+            @Override
+            public boolean accept(File f) {
+                if (f.getName().contains(".mca")) {
+                    return true;
+                }
+                return !f.isFile();
+            }
 
+            @Override
+            public String getDescription() {
+                return ".mca";
+            }
+        });
+        jFileChooser.showDialog(null, "Load File");
+        File selectedFile = jFileChooser.getSelectedFile();
+        if (selectedFile == null) {
+            throw new FileNotFoundException("This File does not Exist");
+        }
+        if (!selectedFile.exists()) {
+            throw new FileNotFoundException("This File does not Exist");
+        }
+        FileInputStream fileInputStream = new FileInputStream(selectedFile.getAbsolutePath());
+        if (new String(fileInputStream.readNBytes(3)).equals("mca")) {
+            System.out.println("This is a true MCA file");
+        }
+        EdgeNumber = bitearr_to_int(fileInputStream.readNBytes(2));
+        System.out.println(EdgeNumber);
+        BetweenNumber = bitearr_to_int(fileInputStream.readNBytes(2));
+        System.out.println(BetweenNumber);
+        setupPoints(EdgeNumber,BetweenNumber);
+        for (int i = 0; i < Math.pow(2,EdgeNumber); i++) {
+            ArrayList<Integer> thiscase = CaseArray[i];
+            int caseentries = bitearr_to_int(fileInputStream.readNBytes(1));
+            System.out.println(caseentries);
+            for (int j = 0; j < caseentries; j++) {
+                int casepoint = bitearr_to_int(fileInputStream.readNBytes(2));
+                thiscase.add(casepoint);
+            }
+        }
+        //byte[] allbytes = fileInputStream.readAllBytes();
+        fileInputStream.close();
     }
 
     public void updateConTogglesByStorage() {
@@ -181,7 +279,7 @@ public class GeneratorGUI extends JPanel {
             connectiontoggles.set(i, false);
         }
         for (Integer connection : Connections) {
-            connectiontoggles.set(connection-NumberOffset,true);
+            connectiontoggles.set(connection - NumberOffset, true);
         }
         repaint();
     }
@@ -191,7 +289,7 @@ public class GeneratorGUI extends JPanel {
         writer.write("{");
         writer.newLine();
         for (ArrayList<Integer> integers : CaseArray) {
-            writer.write(integers.toString().replaceAll("\\["," {").replaceAll("]","},"));
+            writer.write(integers.toString().replaceAll("\\[", " {").replaceAll("]", "},"));
             writer.newLine();
         }
         writer.write("}");
@@ -199,8 +297,8 @@ public class GeneratorGUI extends JPanel {
     }
 
     public void recalculateCornerToggles(int caseNumber) {
+        CaseNumber = (int) Math.max(Math.min(CaseNumber, MaxCases - 1), 0);
         CaseDisplay.setText("The Current Case: " + CaseArray[CaseNumber].toString());
-        CaseNumber = (int) Math.max(Math.min(CaseNumber,MaxCases-1),0);
         updateConTogglesByStorage();
 //        System.out.println(caseNumber);
 //        System.out.println(Integer.toBinaryString(caseNumber));
@@ -227,7 +325,7 @@ public class GeneratorGUI extends JPanel {
     }
 
     public void setupPoints(int Edges, int Betweenpoints) {
-        MaxCases = (long) (Math.pow(2,Edges));
+        MaxCases = (long) (Math.pow(2, Edges));
 
         CaseNumber = 0;
         EdgeNumber = Edges;
@@ -261,7 +359,7 @@ public class GeneratorGUI extends JPanel {
     private void drawTriangle(Graphics2D g2d, Vector2 a, Vector2 b, Vector2 c) {
         int[] xpoints = new int[]{(int) a.x + 10, (int) b.x + 10, (int) c.x + 10};
         int[] ypoints = new int[]{(int) a.y + 10, (int) b.y + 10, (int) c.y + 10};
-        g2d.fillPolygon(xpoints,ypoints,3);
+        g2d.fillPolygon(xpoints, ypoints, 3);
     }
 
     @Override
@@ -305,31 +403,31 @@ public class GeneratorGUI extends JPanel {
             //g2d.drawString("" + (i + numberoffset), (int) connectionpoint.x + 4, (int) connectionpoint.y + 14);
         }
 
-        g2d.setColor(new Color(0,0,255,150));
-        if (connectionmode==1) {
+        g2d.setColor(new Color(0, 0, 255, 150));
+        if (connectionmode == 1) {
             // Lines
             g2d.setStroke(new BasicStroke(3));
             if (CaseArray[CaseNumber].size() >= 2) {
-                for (int index = 0; index < CaseArray[CaseNumber].size()/2; index++) {
+                for (int index = 0; index < CaseArray[CaseNumber].size() / 2; index++) {
                     System.out.println(index);
                     g2d.drawLine(
-                            (int) connectionpoints.get(CaseArray[CaseNumber].get(index*2)).x+10,
-                            (int) connectionpoints.get(CaseArray[CaseNumber].get(index*2)).y+10,
-                            (int) connectionpoints.get(CaseArray[CaseNumber].get(index*2+1)).x+10,
-                            (int) connectionpoints.get(CaseArray[CaseNumber].get(index*2+1)).y+10
+                            (int) connectionpoints.get(CaseArray[CaseNumber].get(index * 2)).x + 10,
+                            (int) connectionpoints.get(CaseArray[CaseNumber].get(index * 2)).y + 10,
+                            (int) connectionpoints.get(CaseArray[CaseNumber].get(index * 2 + 1)).x + 10,
+                            (int) connectionpoints.get(CaseArray[CaseNumber].get(index * 2 + 1)).y + 10
                     );
                 }
             }
-        } else if (connectionmode==2) {
+        } else if (connectionmode == 2) {
             // Triangles
             if (CaseArray[CaseNumber].size() >= 3) {
-                for (int index = 0; index < CaseArray[CaseNumber].size()/3; index++) {
+                for (int index = 0; index < CaseArray[CaseNumber].size() / 3; index++) {
                     System.out.println(index);
                     drawTriangle(
                             g2d,
-                            connectionpoints.get(CaseArray[CaseNumber].get(index*3)),
-                            connectionpoints.get(CaseArray[CaseNumber].get(index*3 + 1)),
-                            connectionpoints.get(CaseArray[CaseNumber].get(index*3 + 2))
+                            connectionpoints.get(CaseArray[CaseNumber].get(index * 3)),
+                            connectionpoints.get(CaseArray[CaseNumber].get(index * 3 + 1)),
+                            connectionpoints.get(CaseArray[CaseNumber].get(index * 3 + 2))
                     );
                 }
             }
